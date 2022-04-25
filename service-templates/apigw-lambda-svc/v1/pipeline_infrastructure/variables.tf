@@ -16,10 +16,10 @@ variable "lambda_runtime" {
   default     = "nodejs12.x"
 }
 
-variable "function_account_ids" {
+variable "environment_account_ids" {
   description = "Account IDs that require access to the function artifacts"
-  type        = list(string)
-  default     = []
+  type        = string
+  default     = ""
 }
 
 variable "codebuild_deployments" {

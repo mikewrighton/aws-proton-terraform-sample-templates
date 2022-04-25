@@ -2,6 +2,10 @@
 # S3 Bucket - Function
 ################################################################################
 
+locals {
+  environment_account_ids = split(",", var.environment_account_ids)
+}
+
 resource "aws_s3_bucket" "function" {
   bucket_prefix = "function-bucket"
 }
@@ -17,7 +21,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "function" {
 }
 
 resource "aws_s3_bucket_policy" "function" {
-  count = length(var.function_account_ids) > 0 ? 1 : 0
+  count = length(local.environment_account_ids) > 0 ? 1 : 0
 
   policy = data.aws_iam_policy_document.function.json
   bucket = aws_s3_bucket.function.id
@@ -27,7 +31,7 @@ data "aws_iam_policy_document" "function" {
   statement {
     principals {
       type        = "AWS"
-      identifiers = [for id in var.function_account_ids : "arn:aws:iam::${id}:root"]
+      identifiers = [for id in local.environment_account_ids : "arn:aws:iam::${id}:root"]
     }
     actions = [
       "s3:GetObject"

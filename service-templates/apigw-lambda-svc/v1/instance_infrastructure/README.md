@@ -59,8 +59,8 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | Region where resources will be provisioned | `string` | `"us-east-1"` | no |
-| <a name="input_lambda_function_name"></a> [lambda\_function\_name](#input\_lambda\_function\_name) | Name of the Lambda function | `string` | `"function1"` | no |
-| <a name="input_lambda_handler"></a> [lambda\_handler](#input\_lambda\_handler) | Handler of the Lambda function | `string` | `"index.handler"` | no |
+| <a name="input_lambda_function_name"></a> [lambda\_function\_name](#input\_lambda\_function\_name) | Name of the Lambda function | `string` | `"function"` | no |
+| <a name="input_lambda_handler"></a> [lambda\_handler](#input\_lambda\_handler) | Handler of the Lambda function | `string` | `"app.handler"` | no |
 | <a name="input_lambda_runtime"></a> [lambda\_runtime](#input\_lambda\_runtime) | Runtime of the Lambda function | `string` | `"nodejs12.x"` | no |
 | <a name="input_lambda_s3_bucket"></a> [lambda\_s3\_bucket](#input\_lambda\_s3\_bucket) | S3 bucket where Lambda function code is stored | `string` | `""` | no |
 | <a name="input_lambda_s3_key"></a> [lambda\_s3\_key](#input\_lambda\_s3\_key) | S3 key where Lambda function code is stored | `string` | `""` | no |
@@ -73,6 +73,6 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_http_api_endpoint"></a> [http\_api\_endpoint](#output\_http\_api\_endpoint) | The default endpoint for the HTTP API |
-| <a name="output_lambda_runtime"></a> [lambda\_runtime](#output\_lambda\_runtime) | The runtime of the Lambda function |
+| <a name="output_HttpApiEndpoint"></a> [HttpApiEndpoint](#output\_HttpApiEndpoint) | The default endpoint for the HTTP API |
+| <a name="output_LambdaRuntime"></a> [LambdaRuntime](#output\_LambdaRuntime) | The runtime of the Lambda function |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -13,19 +13,19 @@ variable "service_name" {
 variable "lambda_function_name" {
   description = "Name of the Lambda function"
   type        = string
-  default     = "function1"
+  default     = "function"
+}
+
+variable "lambda_handler" {
+  description = "Handler of the Lambda function"
+  type        = string
+  default     = "app.handler"
 }
 
 variable "lambda_runtime" {
   description = "Runtime of the Lambda function"
   type        = string
   default     = "nodejs12.x"
-}
-
-variable "lambda_handler" {
-  description = "Handler of the Lambda function"
-  type        = string
-  default     = "index.handler"
 }
 
 variable "use_local_function" {

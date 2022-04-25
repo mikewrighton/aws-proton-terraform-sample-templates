@@ -75,7 +75,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | Region where resources will be provisioned | `string` | `"us-east-1"` | no |
 | <a name="input_codebuild_deployments"></a> [codebuild\_deployments](#input\_codebuild\_deployments) | CodeBuild deployment projects | `any` | `{}` | no |
-| <a name="input_function_account_ids"></a> [function\_account\_ids](#input\_function\_account\_ids) | Account IDs that require access to the function artifacts | `list(string)` | `[]` | no |
+| <a name="input_environment_account_ids"></a> [environment\_account\_ids](#input\_environment\_account\_ids) | Account IDs that require access to the function artifacts | `string` | `""` | no |
 | <a name="input_lambda_runtime"></a> [lambda\_runtime](#input\_lambda\_runtime) | Lambda runtime | `string` | `"nodejs12.x"` | no |
 | <a name="input_pipeline_code_directory"></a> [pipeline\_code\_directory](#input\_pipeline\_code\_directory) | Directory where the pipeline code is located | `string` | `"lambda-ping-sns"` | no |
 | <a name="input_pipeline_packaging_command"></a> [pipeline\_packaging\_command](#input\_pipeline\_packaging\_command) | Command to run packaging | `string` | `"zip function.zip app.js"` | no |

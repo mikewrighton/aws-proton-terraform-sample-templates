@@ -9,62 +9,51 @@ schema:
       type: object
       description: "Input properties for a Lambda backed HTTP API."
       properties:
+        lambda_function_name:
+          type: string
+          description: "The name to be assigned to the Lambda function"
+          minLength: 1
+          maxLength: 50
+          default: "function"
         lambda_handler:
           type: string
           description: "The function within your code that is called to begin execution"
           minLength: 1
           maxLength: 50
           default: "app.handler"
-        lambda_memory:
-          type: number
-          description: "The size of your Lambda functions in MB"
-          default: 512
-          minimum: 1
-          maximum: 3008
-        lambda_timeout:
-          type: number
-          description: "The timeout in seconds of your Lambda function"
-          default: 30
-          minimum: 1
-          maximum: 900
         lambda_runtime:
           type: string
           description: "The runtime for your Lambda service"
           enum: ["nodejs12.x", "python3.8", "ruby2.7", "java11", "go1.x", "dotnetcore3.1"]
           default: "nodejs12.x"
-        lambda_bucket:
+        lambda_s3_bucket:
           type: string
           description: "The s3 bucket for your application code"
           minLength: 1
           maxLength: 200
-        lambda_key:
+        lambda_s3_key:
           type: string
           description: "The s3 key for your application code"
           minLength: 1
           maxLength: 200
-        subnet_type:
-          type: string
-          description: "Subnet type for your service"
-          enum: ["public", "private"]
-          default: "public"
 
     PipelineInputs:
       type: object
       description: "Pipeline input properties"
       properties:
-        code_dir:
+        pipeline_code_directory:
           type: string
           description: "Source directory for the service"
           default: "lambda-ping-sns"
           minLength: 1
           maxLength: 100
-        unit_test_command:
+        pipeline_unit_test_command:
           type: string
           description: "The command to run to unit test the application code"
           default: "echo 'add your unit test command here'"
           minLength: 1
           maxLength: 200
-        packaging_command:
+        pipeline_packaging_command:
           type: string
           description: "The commands which packages your code into a file called function.zip"
           default: "zip function.zip app.js"
