@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "publish_role_policy_document" {
     actions   = ["ecr:GetAuthorizationToken"]
   }
   statement {
-    effect    = "Allow"
+    effect = "Allow"
     resources = [
       aws_ecr_repository.ecr_repo.arn
     ]
@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "publish_role_policy_document" {
     ]
   }
   statement {
-    effect = "Allow"
+    effect    = "Allow"
     resources = ["*"]
     actions   = ["proton:GetService"]
   }
@@ -218,7 +218,6 @@ data "aws_iam_policy_document" "pipeline_artifacts_bucket_key_policy" {
     effect    = "Allow"
     resources = ["*"]
     principals {
-      #todo -
       identifiers = [aws_iam_role.deployment_role.arn]
       type        = "AWS"
     }

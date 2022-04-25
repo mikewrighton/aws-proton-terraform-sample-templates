@@ -6,14 +6,13 @@ data "aws_partition" "current" {}
 
 data "aws_iam_policy_document" "ecs_processing_queue_policy_document" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage"
     ]
     principals {
-      # TODO ServiceQueueProcessingTaskDefTaskRole
-      identifiers = []
+      identifiers = [aws_iam_role.ecs_processing_queue_task_def_task_role.arn]
       type        = "AWS"
     }
     resources = [
@@ -21,7 +20,7 @@ data "aws_iam_policy_document" "ecs_processing_queue_policy_document" {
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage"
@@ -44,7 +43,7 @@ data "aws_iam_policy_document" "ecs_processing_queue_policy_document" {
 
 data "aws_iam_policy_document" "ecs_processing_queue_task_def_task_role_policy_document" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "sqs:ReceiveMessage",
       "sqs:ChangeMessageVisibility",

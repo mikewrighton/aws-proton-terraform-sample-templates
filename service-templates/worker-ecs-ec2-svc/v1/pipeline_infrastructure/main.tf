@@ -1,11 +1,11 @@
-resource aws_ecr_repository "ecr_repo" {
+resource "aws_ecr_repository" "ecr_repo" {
   name = "${var.service.name}-repo"
 }
 
-resource aws_ecr_repository_policy "ecr_repo_policy" {
-  count = var.pipeline.inputs.environment_account_ids != "" ? 1 : 0
-  repository = aws_ecr_repository.ecr_repo
-  policy = data.aws_iam_policy_document.ecr_repo_policy_document.json
+resource "aws_ecr_repository_policy" "ecr_repo_policy" {
+  count      = var.pipeline.inputs.environment_account_ids != "" ? 1 : 0
+  repository = aws_ecr_repository.ecr_repo.name
+  policy     = data.aws_iam_policy_document.ecr_repo_policy_document.json
 }
 
 data "aws_iam_policy_document" "ecr_repo_policy_document" {
@@ -78,11 +78,8 @@ resource "aws_codebuild_project" "build_project" {
                       "commands": [
                         "IMAGE_REPO_NAME=$repo_name",
                         "IMAGE_TAG=$CODEBUILD_BUILD_NUMBER",
-                        "IMAGE_ID=
-              - Ref: AWS::AccountId
-              - >-
-                .dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG",
-                        "docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f ${var.pipeline.inputs.docker_file} .",
+                        "IMAGE_ID=${local.account_id}.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG",
+                        "docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f ${var.pipeline.inputs.dockerfile} .",
                         "docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $IMAGE_ID;",
                         "docker push $IMAGE_ID"
                       ]
@@ -111,7 +108,7 @@ EOF
 resource "aws_codebuild_project" "deploy_project" {
   for_each = { for instance in var.service_instances : instance.name => instance }
 
-  name         = "Deploy${index(var.service_instances, each.value)}Project"
+  name         = "${var.service.name}-deploy-${index(var.service_instances, each.value)}-project"
   service_role = aws_iam_role.deployment_role.arn
 
   artifacts {
@@ -324,7 +321,7 @@ resource "aws_codepipeline" "pipeline" {
         run_order = 1
 
         configuration = {
-          ProjectName = "Deploy${index(var.service_instances, stage.value)}Project"
+          ProjectName = "${var.service.name}-deploy-${index(var.service_instances, stage.value)}-project"
         }
         input_artifacts = ["BuildOutput"]
         role_arn        = aws_iam_role.pipeline_deploy_codepipeline_action_role.arn
