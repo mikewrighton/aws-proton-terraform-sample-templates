@@ -83,7 +83,9 @@ resource "aws_codebuild_project" "build_project" {
                       "commands": [
                         "aws proton --region $AWS_DEFAULT_REGION get-service --name $service_name | jq -r .service.spec > service.yaml",
                         "yq w service.yaml 'instances[*].spec.lambda_bucket' \"$bucket_name\" > rendered_service.yaml", 
-                        "yq w rendered_service.yaml 'instances[*].spec.lambda_key' \"$FUNCTION_KEY\" > rendered_service.yaml"
+                        "yq w rendered_service.yaml 'instances[*].spec.lambda_key' \"$FUNCTION_KEY\" > rendered_service.yaml",
+                        "echo 'rendered_service.yaml':",
+                        "cat rendered_service.yaml"
                       ]
                     }
                   },
@@ -139,6 +141,8 @@ resource "aws_codebuild_project" "deploy_project" {
               "build": {
                 "commands": [
                   "pip3 install --upgrade --user awscli",
+                  "echo 'rendered_service.yaml':",
+                  "cat ${var.pipeline.inputs.code_dir}/rendered_service.yaml",
                   "aws proton --region $AWS_DEFAULT_REGION update-service-instance --deployment-type CURRENT_VERSION --name $service_instance_name --service-name $service_name --spec file://${var.pipeline.inputs.code_dir}/rendered_service.yaml",
                   "aws proton --region $AWS_DEFAULT_REGION wait service-instance-deployed --name $service_instance_name --service-name $service_name"
                 ]
