@@ -24,11 +24,11 @@ resource "aws_iam_role" "lambda_exec" {
   name_prefix = "serverless_lambda"
 
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
-        Action    = "sts:AssumeRole"
-        Effect    = "Allow"
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
         Principal = {
           Service = "lambda.amazonaws.com"
         }
@@ -60,9 +60,9 @@ resource "aws_lambda_function" "lambda_function" {
 
   vpc_config {
     security_group_ids = [var.environment.outputs.VpcDefaultSecurityGroupId]
-    subnet_ids         = var.service_instance.inputs.subnet_type == "private" ? [
+    subnet_ids = var.service_instance.inputs.subnet_type == "private" ? [
       var.environment.outputs.PrivateSubnetOneId, var.environment.outputs.PrivateSubnetTwoId
-    ] : [
+      ] : [
       var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId
     ]
   }

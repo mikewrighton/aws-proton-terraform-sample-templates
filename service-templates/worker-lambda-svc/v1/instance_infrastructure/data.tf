@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "processing_queue_policy_document" {
     ]
   }
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sqs:SendMessage"]
     principals {
       identifiers = ["sns.amazonaws.com"]
