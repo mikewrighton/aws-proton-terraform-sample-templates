@@ -4,9 +4,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.0"
     }
-    datadog = {
-      source = "DataDog/datadog"
-    }
   }
 
   backend "s3" {

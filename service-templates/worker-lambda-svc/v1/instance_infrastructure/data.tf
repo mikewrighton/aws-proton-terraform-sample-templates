@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
 
-data "aws_iam_policy_document" "ecs_processing_queue_policy_document" {
+data "aws_iam_policy_document" "processing_queue_policy_document" {
   statement {
     effect = "Allow"
     actions = [
@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "ecs_processing_queue_task_def_task_role_policy_d
       "sqs:GetQueueAttributes"
     ]
     resources = [
-      aws_sqs_queue.ecs_processing_queue.arn
+      aws_sqs_queue.processing_queue.arn
     ]
   }
 }

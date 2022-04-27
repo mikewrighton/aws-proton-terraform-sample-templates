@@ -10,7 +10,7 @@ resource "aws_sqs_queue" "processing_queue" {
 }
 
 resource "aws_sqs_queue_policy" "processing_queue_policy" {
-  policy    = data.aws_iam_policy_document.ecs_processing_queue_policy_document.json
+  policy    = data.aws_iam_policy_document.processing_queue_policy_document.json
   queue_url = aws_sqs_queue.processing_queue.id
 }
 
@@ -24,11 +24,11 @@ resource "aws_iam_role" "lambda_exec" {
   name_prefix = "serverless_lambda"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
+        Action    = "sts:AssumeRole"
+        Effect    = "Allow"
         Principal = {
           Service = "lambda.amazonaws.com"
         }
@@ -37,9 +37,14 @@ resource "aws_iam_role" "lambda_exec" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_exec_policy" {
+resource "aws_iam_role_policy_attachment" "lambda_exec_vpc_policy" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_exec_sqs_policy" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
 }
 
 resource "aws_lambda_function" "lambda_function" {
@@ -54,8 +59,12 @@ resource "aws_lambda_function" "lambda_function" {
   }
 
   vpc_config {
-    security_group_ids = [var.environment.outputs.]
-    subnet_ids         = []
+    security_group_ids = [var.environment.outputs.VpcDefaultSecurityGroupId]
+    subnet_ids         = var.service_instance.inputs.subnet_type == "private" ? [
+      var.environment.outputs.PrivateSubnetOneId, var.environment.outputs.PrivateSubnetTwoId
+    ] : [
+      var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId
+    ]
   }
 
   handler   = contains(keys(var.service_instance.inputs), "lambda_bucket") ? var.service_instance.inputs.lambda_handler : "index.handler"
@@ -66,10 +75,7 @@ resource "aws_lambda_function" "lambda_function" {
 
 resource "aws_lambda_event_source_mapping" "sqs_event_source" {
   event_source_arn = aws_sqs_queue.processing_queue.arn
-  function_name = aws_lambda_function.lambda_function.function_name
-  batch_size = 10
+  function_name    = aws_lambda_function.lambda_function.function_name
+  batch_size       = 10
+
 }
-
-
-
-
