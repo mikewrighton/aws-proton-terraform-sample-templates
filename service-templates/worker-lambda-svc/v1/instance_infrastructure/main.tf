@@ -48,7 +48,7 @@ resource "aws_iam_role_policy_attachment" "lambda_exec_sqs_policy" {
 }
 
 resource "aws_lambda_function" "lambda_function" {
-  function_name = "${var.service_instance.name}-function"
+  function_name = "${var.service.name}-${var.service_instance.name}-function"
   runtime       = var.service_instance.inputs.lambda_runtime
   role          = aws_iam_role.lambda_exec.arn
 
