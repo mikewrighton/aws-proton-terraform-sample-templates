@@ -1,6 +1,5 @@
 resource "aws_security_group" "lb_sg" {
   count       = var.service_instance.inputs.loadbalancer_type == "application" ? 1 : 0
-  name        = "service_lb_security_group"
   description = "Automatically created Security Group for Application LB."
   vpc_id      = var.environment.outputs.VpcId
 
@@ -28,7 +27,7 @@ resource "aws_lb" "service_lb" {
   name               = "${var.service.name}-lb"
   load_balancer_type = var.service_instance.inputs.loadbalancer_type
   security_groups    = var.service_instance.inputs.loadbalancer_type == "application" ? [aws_security_group.lb_sg[0].id] : null
-  subnets            = [var.environment.outputs.PublicSubnet1, var.environment.outputs.PublicSubnet2]
+  subnets            = [var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId]
 
   enable_deletion_protection = false
 }
@@ -55,10 +54,10 @@ resource "aws_lb_target_group" "service_lb_public_listener_target_group" {
   vpc_id      = var.environment.outputs.VpcId
 }
 
-resource "aws_lb_target_group_attachment" "target_group_attachment" {
-  port     = var.service_instance.inputs.port
+resource "aws_lb_target_group_attachment" "service_task_count_target_attachment" {
+  port             = var.service_instance.inputs.port
   target_group_arn = aws_lb_target_group.service_lb_public_listener_target_group.arn
-  target_id        = aws_lb.service_lb.id
+  target_id        = aws_lb_target_group.service_lb_public_listener_target_group.id
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
@@ -135,7 +134,11 @@ resource "aws_ecs_service" "service" {
     #    Assign a public IP address to the ENI
     assign_public_ip = var.service_instance.inputs.subnet_type == "private" ? false : true
     security_groups  = [aws_security_group.lb_sg[0].id]
-    subnets          = var.service_instance.inputs.subnet_type == "private" ? [var.environment.outputs.PrivateSubnet1, var.environment.outputs.PrivateSubnet2] : [var.environment.outputs.PublicSubnet1, var.environment.outputs.PublicSubnet2]
+    subnets          = var.service_instance.inputs.subnet_type == "private" ? [var.environment.outputs.PrivateSubnetOneId, var.environment.outputs.PrivateSubnetTwoId] : [var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.service_cloud_map_service.arn
   }
 
   task_definition = aws_ecs_task_definition.service_task_definition.arn
@@ -143,7 +146,8 @@ resource "aws_ecs_service" "service" {
 }
 
 resource "aws_service_discovery_service" "service_cloud_map_service" {
-  name = "${var.service.name}.${var.service_instance.name}_cloud_map_service"
+  name         = "${var.service.name}.${var.service_instance.name}_cloud_map_service"
+  namespace_id = var.environment.outputs.CloudMapNamespaceId
 
   dns_config {
     namespace_id = var.environment.outputs.CloudMapNamespaceId
@@ -162,7 +166,6 @@ resource "aws_service_discovery_service" "service_cloud_map_service" {
 }
 
 resource "aws_security_group" "service_security_group" {
-  name        = "service_security_group"
   description = "Automatically created Security Group for the Service"
   vpc_id      = var.environment.outputs.VpcId
 
@@ -193,6 +196,7 @@ resource "aws_appautoscaling_target" "service_task_count_target" {
   role_arn           = "arn:aws:iam::${local.account_id}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
+  depends_on         = [aws_ecs_service.service]
 }
 
 resource "aws_appautoscaling_policy" "service_task_count_target_cpu_scaling" {
