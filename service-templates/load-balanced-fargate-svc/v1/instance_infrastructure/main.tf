@@ -55,6 +55,12 @@ resource "aws_lb_target_group" "service_lb_public_listener_target_group" {
   vpc_id      = var.environment.outputs.VpcId
 }
 
+resource "aws_lb_target_group_attachment" "target_group_attachment" {
+  port     = var.service_instance.inputs.port
+  target_group_arn = aws_lb_target_group.service_lb_public_listener_target_group.arn
+  target_id        = aws_lb.service_lb.id
+}
+
 resource "aws_iam_role" "ecs_task_execution_role" {
   name_prefix        = "service_task_definition_execution_role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_assume_role_policy.json
