@@ -35,17 +35,17 @@ variable "task_sizes" {
 resource "aws_ecs_task_definition" "service_task_def" {
   container_definitions = jsonencode([
     {
-      essential        = true,
-      image            = var.service_instance.inputs.image,
+      essential = true,
+      image     = var.service_instance.inputs.image,
       logConfiguration = {
         logDriver = "awslogs",
-        options   = {
+        options = {
           awslogs-group : aws_cloudwatch_log_group.service_log_group.name,
           awslogs-region : var.aws_region,
           awslogs-stream-prefix : "${var.service.name}/${var.service_instance.name}"
         }
       },
-      name         = var.service_instance.name,
+      name = var.service_instance.name,
       portMappings = [
         {
           containerPort = tonumber(var.service_instance.inputs.port)
@@ -81,9 +81,9 @@ resource "aws_ecs_service" "service" {
   network_configuration {
     assign_public_ip = var.service_instance.inputs.subnet_type == "private" ? false : true
     security_groups  = [aws_security_group.service_security_group.id]
-    subnets          = var.service_instance.inputs.subnet_type == "private" ? [
+    subnets = var.service_instance.inputs.subnet_type == "private" ? [
       var.environment.outputs.PrivateSubnetOneId, var.environment.outputs.PrivateSubnetTwoId
-    ] : [
+      ] : [
       var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId
     ]
   }
