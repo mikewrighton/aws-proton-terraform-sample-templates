@@ -6,11 +6,7 @@ terraform {
     }
   }
 
-  backend "s3" {
-    region = "ap-northeast-1"
-    bucket = "terraform-samples-259837135622-worker-lambda-svc"
-    key    = "instance.tfstate"
-  }
+  backend "s3" {}
 }
 
 # Configure the AWS Provider
@@ -20,7 +16,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      "proton:pipeline" = var.service.name
+      "proton:service" = var.service.name
     }
   }
 }
