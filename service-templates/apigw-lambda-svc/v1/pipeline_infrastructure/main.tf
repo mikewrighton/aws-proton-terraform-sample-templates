@@ -83,7 +83,7 @@ resource "aws_codebuild_project" "build_project" {
                       "commands": [
                         "aws proton --region $AWS_DEFAULT_REGION get-service --name $service_name | jq -r .service.spec > service.yaml",
                         "yq w service.yaml 'instances[*].spec.lambda_bucket' \"$bucket_name\" > rendered_service_tmp.yaml",
-                        "yq w rendered_service_tmp.yaml 'instances[*].spec.lambda_key' \"$FUNCTION_KEY\" > rendered_service.yaml",
+                        "yq w rendered_service_tmp.yaml 'instances[*].spec.lambda_key' \"$FUNCTION_KEY\" > rendered_service.yaml"
                       ]
                     }
                   },
@@ -103,8 +103,7 @@ encryption_key = aws_kms_key.pipeline_artifacts_bucket_key.arn
 
 
 resource "aws_codebuild_project" "deploy_project" {
-  for_each = { for instance in var.service_instances : instance.name => instance }
-
+  for_each     = { for instance in var.service_instances : instance.name => instance }
   name         = "deploy-${var.service.name}-${index(var.service_instances, each.value)}"
   service_role = aws_iam_role.deployment_role.arn
 

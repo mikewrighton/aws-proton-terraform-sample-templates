@@ -297,7 +297,7 @@ data "aws_iam_policy_document" "pipeline_build_codepipeline_action_role_policy" 
 data "aws_iam_policy_document" "pipeline_deploy_codepipeline_action_role_policy" {
   statement {
     effect    = "Allow"
-    resources = ["arn:aws:codebuild:${local.region}:${local.account_id}:project/deploy-*", ]
+    resources = ["arn:aws:codebuild:${local.region}:${local.account_id}:project/deploy-*"]
     actions = [
       "codebuild:BatchGetBuilds",
       "codebuild:StartBuild",
