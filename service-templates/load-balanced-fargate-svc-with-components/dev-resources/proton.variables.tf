@@ -39,7 +39,7 @@ variable "service" {
 variable "environment" {
   type = object({
     outputs = map(string)
-    name = string
+    name    = string
   })
   default = null
 }

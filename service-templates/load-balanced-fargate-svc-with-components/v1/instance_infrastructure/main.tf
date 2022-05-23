@@ -27,10 +27,10 @@ resource "aws_security_group_rule" "lb_sg_egress" {
 resource "aws_lb" "service_lb" {
   name               = "${var.service.name}-lb"
   load_balancer_type = var.service_instance.inputs.loadbalancer_type
-  security_groups    = var.service_instance.inputs.loadbalancer_type == "application" ? [
+  security_groups = var.service_instance.inputs.loadbalancer_type == "application" ? [
     aws_security_group.lb_sg[0].id
   ] : null
-  subnets            = [var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId]
+  subnets = [var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId]
 
   enable_deletion_protection = false
 }
@@ -102,10 +102,11 @@ variable "task_sizes" {
 }
 
 locals {
-  ecs_environment_variables = concat([
-  for k, v in var.service_instance.components.custom_runtime.outputs :
-  { name : k, value : v }
-  ],
+  ecs_environment_variables = concat(
+    [
+      for k, v in var.service_instance.components.custom_runtime.outputs :
+      { name : k, value : v }
+    ],
     [
       { name : "sns_topic_arn", value : "{ping:${var.environment.outputs.SnsTopicArn}" },
       { name : "sns_region", value : var.environment.outputs.SnsRegion },
@@ -113,10 +114,12 @@ locals {
     ]
   )
 
-  component_policy_arns = tolist([
-  for k, v in var.service_instance.components.custom_runtime.outputs
-  : v if length(regexall("^arn:[a-zA-Z-]+:iam::\\d{12}:policy/.+", v)) > 0
-  ])
+  component_policy_arns = tolist(
+    [
+      for k, v in var.service_instance.components.custom_runtime.outputs
+      : v if length(regexall("^arn:[a-zA-Z-]+:iam::\\d{12}:policy/.+", v)) > 0
+    ]
+  )
 }
 
 resource "aws_ecs_task_definition" "service_task_definition" {
@@ -165,13 +168,13 @@ resource "aws_ecs_service" "service" {
     #    Assign a public IP address to the ENI
     assign_public_ip = var.service_instance.inputs.subnet_type == "private" ? false : true
     security_groups  = [aws_security_group.service_security_group.id]
-    subnets          = var.service_instance.inputs.subnet_type == "private" ? [
+    subnets = var.service_instance.inputs.subnet_type == "private" ? [
       var.environment.outputs.PrivateSubnetOneId, var.environment.outputs.PrivateSubnetTwoId
     ] : [var.environment.outputs.PublicSubnetOneId, var.environment.outputs.PublicSubnetTwoId]
   }
 
   task_definition = aws_ecs_task_definition.service_task_definition.arn
-  depends_on      = [
+  depends_on = [
     aws_lb_target_group.service_lb_public_listener_target_group, aws_lb_listener.service_lb_public_listener
   ]
 }
@@ -210,11 +213,11 @@ resource "aws_security_group" "service_security_group" {
 }
 
 resource "aws_security_group_rule" "service_ingress" {
-  description       = "Load balancer to target"
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
+  description = "Load balancer to target"
+  type        = "ingress"
+  from_port   = 80
+  to_port     = 80
+  protocol    = "tcp"
   #Network Load Balancers do not have associated security groups. See - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/target-group-register-targets.html#target-security-groups
   security_group_id = var.service_instance.inputs.loadbalancer_type == "application" ? aws_security_group.service_security_group.id : null
   cidr_blocks       = ["0.0.0.0/0"]

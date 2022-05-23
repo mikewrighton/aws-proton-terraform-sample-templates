@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "ecs_task_execution_role_policy_document" {
 
 data "aws_iam_policy_document" "task_role_permission_boundary_document" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "s3:Get*",
       "s3:List*",
@@ -23,17 +23,12 @@ data "aws_iam_policy_document" "task_role_permission_boundary_document" {
       "sqs:Send*"
     ]
     resources = ["*"]
-    condition {
-      test     = "StringEquals"
-      values   = ["arn:aws:proton:${local.region}:${local.account_id}:environment/${var.environment.name}"]
-      variable = "aws:ResourceTag/proton:environment"
-    }
   }
 }
 
 data "aws_iam_policy_document" "base_task_role_managed_policy_document" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "cloudwatch:PutMetricData",
       "logs:PutLogEvents"
