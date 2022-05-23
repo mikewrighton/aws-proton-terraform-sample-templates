@@ -6,14 +6,16 @@ terraform {
     }
   }
 
-  backend "s3" {}
+#  backend "s3" {}
 }
 
 # Configure the AWS Provider
 provider "aws" {
   region = var.aws_region
   default_tags {
-    tags = var.proton_tags
+    tags = {
+      "proton:service" : var.service.name
+    }
   }
 }
 

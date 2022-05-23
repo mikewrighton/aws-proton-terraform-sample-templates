@@ -12,8 +12,12 @@ terraform {
 # Configure the AWS Provider
 provider "aws" {
   region = var.aws_region
+  alias  = "default"
+
   default_tags {
-    tags = var.proton_tags
+    tags = {
+      "proton:pipeline" = var.service.name
+    }
   }
 }
 

@@ -29,3 +29,8 @@ variable "pipeline" {
   })
   default = null
 }
+
+variable "proton_tags" {
+  type = map(string)
+  default = null
+}
