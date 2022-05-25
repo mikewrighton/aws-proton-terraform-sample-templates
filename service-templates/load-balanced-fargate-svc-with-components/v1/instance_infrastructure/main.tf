@@ -102,11 +102,12 @@ variable "task_sizes" {
 }
 
 locals {
-  ecs_environment_variables = concat(
-    [
-      for k, v in var.service_instance.components.custom_runtime.outputs :
-      { name : k, value : v }
-    ],
+  component_outputs = can(var.service_instance.components["custom_runtime"]) ? [
+    for k, v in var.service_instance.components.custom_runtime.outputs :
+    { name : k, value : v }
+  ] : []
+
+  ecs_environment_variables = concat(local.component_outputs,
     [
       { name : "sns_topic_arn", value : "{ping:${var.environment.outputs.SnsTopicArn}" },
       { name : "sns_region", value : var.environment.outputs.SnsRegion },
@@ -114,12 +115,11 @@ locals {
     ]
   )
 
-  component_policy_arns = tolist(
-    [
-      for k, v in var.service_instance.components.custom_runtime.outputs
-      : v if length(regexall("^arn:[a-zA-Z-]+:iam::\\d{12}:policy/.+", v)) > 0
-    ]
-  )
+  component_policy_arns = can(var.service_instance.components["custom_runtime"]) ? [
+    for k, v in var.service_instance.components.custom_runtime.outputs :
+    v if length(regexall("^arn:[a-zA-Z-]+:iam::\\d{12}:policy/.+", v)) > 0
+  ] : []
+
 }
 
 resource "aws_ecs_task_definition" "service_task_definition" {
