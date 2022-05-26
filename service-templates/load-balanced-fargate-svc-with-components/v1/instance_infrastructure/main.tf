@@ -1,6 +1,5 @@
 resource "aws_security_group" "lb_sg" {
   count       = var.service_instance.inputs.loadbalancer_type == "application" ? 1 : 0
-  name        = "service_lb_security_group"
   description = "Automatically created Security Group for Application LB."
   vpc_id      = var.environment.outputs.VpcId
 
@@ -25,7 +24,6 @@ resource "aws_security_group_rule" "lb_sg_egress" {
 }
 
 resource "aws_lb" "service_lb" {
-  name               = "${var.service.name}-lb"
   load_balancer_type = var.service_instance.inputs.loadbalancer_type
   security_groups = var.service_instance.inputs.loadbalancer_type == "application" ? [
     aws_security_group.lb_sg[0].id
@@ -102,8 +100,8 @@ variable "task_sizes" {
 }
 
 locals {
-  component_outputs = can(var.service_instance.components["custom_runtime"]) ? [
-    for k, v in var.service_instance.components.custom_runtime.outputs :
+  component_outputs = can(var.service_instance.components.default) ? [
+    for k, v in var.service_instance.components.default.outputs :
     { name : k, value : v }
   ] : []
 
@@ -115,8 +113,8 @@ locals {
     ]
   )
 
-  component_policy_arns = can(var.service_instance.components["custom_runtime"]) ? [
-    for k, v in var.service_instance.components.custom_runtime.outputs :
+  component_policy_arns = can(var.service_instance.components.default) ? [
+    for k, v in var.service_instance.components.default.outputs :
     v if length(regexall("^arn:[a-zA-Z-]+:iam::\\d{12}:policy/.+", v)) > 0
   ] : []
 
@@ -199,7 +197,6 @@ resource "aws_service_discovery_service" "service_cloud_map_service" {
 }
 
 resource "aws_security_group" "service_security_group" {
-  name        = "service_security_group"
   description = "Automatically created Security Group for the Service"
   vpc_id      = var.environment.outputs.VpcId
 
