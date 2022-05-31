@@ -99,27 +99,6 @@ variable "task_sizes" {
   }
 }
 
-locals {
-  component_outputs = can(var.service_instance.components.default) ? [
-    for k, v in var.service_instance.components.default.outputs :
-    { name : k, value : v }
-  ] : []
-
-  ecs_environment_variables = concat(local.component_outputs,
-    [
-      { name : "sns_topic_arn", value : "{ping:${var.environment.outputs.SnsTopicArn}" },
-      { name : "sns_region", value : var.environment.outputs.SnsRegion },
-      { name : "backend_url", value : var.service_instance.inputs.backendurl }
-    ]
-  )
-
-  component_policy_arns = can(var.service_instance.components.default) ? [
-    for k, v in var.service_instance.components.default.outputs :
-    v if length(regexall("^arn:[a-zA-Z-]+:iam::\\d{12}:policy/.+", v)) > 0
-  ] : []
-
-}
-
 resource "aws_ecs_task_definition" "service_task_definition" {
   family                   = "${var.service.name}_${var.service_instance.name}"
   task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
